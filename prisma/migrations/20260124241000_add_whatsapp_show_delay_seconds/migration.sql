@@ -1,0 +1,1 @@
+ALTER TABLE "WhatsappSettings" ADD COLUMN "showDelaySeconds" INTEGER NOT NULL DEFAULT 0;

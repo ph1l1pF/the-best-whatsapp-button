@@ -1,0 +1,1 @@
+ALTER TABLE "WhatsappSettings" ADD COLUMN "showClose" BOOLEAN NOT NULL DEFAULT 1;
