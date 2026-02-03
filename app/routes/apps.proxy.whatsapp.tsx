@@ -1,8 +1,7 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
-
-const DEFAULT_MESSAGE = "Hallo! Ich habe eine Frage zu meinem Einkauf.";
+import { getDefaultButtonLabel, getDefaultMessage, getLocaleFromRequest } from "../i18n";
 
 type WhatsappSettings = {
   shop: string;
@@ -30,6 +29,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.public.appProxy(request);
   const { searchParams } = new URL(request.url);
   const shop = session?.shop ?? searchParams.get("shop") ?? "";
+  const locale = getLocaleFromRequest(request);
 
   if (!shop) {
     return new Response("", {
@@ -41,10 +41,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     where: { shop },
   });
   const phone = settings?.phone ?? "";
-  const message = settings?.message ?? DEFAULT_MESSAGE;
+  const message = settings?.message ?? getDefaultMessage(locale);
   const showClose = settings?.showClose ?? true;
   const buttonSize = settings?.buttonSize === "M" ? "M" : "S";
-  const buttonLabel = settings?.buttonLabel ?? "Bei WhatsApp schreiben";
+  const buttonLabel = settings?.buttonLabel ?? getDefaultButtonLabel(locale);
   const showDelaySeconds = Math.max(0, settings?.showDelaySeconds ?? 0);
 
   const script = `
@@ -54,10 +54,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   if (!phone) return;
   var cleanedPhone = phone.replace(/[^0-9]/g, "");
   if (!cleanedPhone) return;
-  if (document.getElementById("easy-checkout-whatsapp-button")) return;
+  if (document.getElementById("the-best-whatsapp-button-whatsapp-button")) return;
+  try {
+    if (window.localStorage && localStorage.getItem("the-best-whatsapp-button-whatsapp-closed") === "1") {
+      return;
+    }
+  } catch (e) {}
 
   var container = document.createElement("div");
-  container.id = "easy-checkout-whatsapp-button";
+  container.id = "the-best-whatsapp-button-whatsapp-button";
   container.style.position = "fixed";
   var closeOffset = ${JSON.stringify(showClose)} ? 10 : 0;
   var sizeOffset = isMedium ? 400 : 0;
@@ -128,6 +133,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   if (${JSON.stringify(showClose)}) {
     close.addEventListener("click", function (event) {
       event.stopPropagation();
+      try {
+        if (window.localStorage) {
+          localStorage.setItem("the-best-whatsapp-button-whatsapp-closed", "1");
+        }
+      } catch (e) {}
       if (container.parentNode) container.parentNode.removeChild(container);
     });
   }

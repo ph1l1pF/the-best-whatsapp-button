@@ -4,8 +4,16 @@ import { useEffect, useState } from "react";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
+import {
+  getDefaultButtonLabel,
+  getDefaultMessage,
+  getLocaleFromRequest,
+  t,
+  type Locale,
+} from "../i18n";
 
 type LoaderData = {
+  locale: Locale;
   phone: string;
   message: string;
   showClose: boolean;
@@ -13,8 +21,6 @@ type LoaderData = {
   buttonLabel: string;
   showDelaySeconds: number;
 };
-
-const DEFAULT_MESSAGE = "Hallo! Ich habe eine Frage zu meinem Einkauf.";
 
 type WhatsappSettings = {
   shop: string;
@@ -60,17 +66,19 @@ const prismaClient = prisma as typeof prisma & {
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
+  const locale = getLocaleFromRequest(request);
 
   const settings = await prismaClient.whatsappSettings.findUnique({
     where: { shop: session.shop },
   });
 
   return {
+    locale,
     phone: settings?.phone ?? "",
-    message: settings?.message ?? DEFAULT_MESSAGE,
+    message: settings?.message ?? getDefaultMessage(locale),
     showClose: settings?.showClose ?? true,
     buttonSize: (settings?.buttonSize === "M" ? "M" : "S") as "S" | "M",
-    buttonLabel: settings?.buttonLabel ?? "Bei WhatsApp schreiben",
+    buttonLabel: settings?.buttonLabel ?? getDefaultButtonLabel(locale),
     showDelaySeconds: Math.max(0, settings?.showDelaySeconds ?? 0),
   } satisfies LoaderData;
 };
@@ -79,7 +87,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const { session } = await authenticate.admin(request);
   const formData = await request.formData();
 
-  const phone = (formData.get("phone")?.toString() ?? "").trim();
+  const rawPhone = (formData.get("phone")?.toString() ?? "").trim();
+  const phone = rawPhone.replace(/[^0-9]/g, "");
   const message = (formData.get("message")?.toString() ?? "").trim();
   const showClose = formData.get("showClose") === "on";
   const buttonSize =
@@ -116,6 +125,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function WhatsappSettings() {
   const {
+    locale,
     phone,
     message,
     showClose,
@@ -136,9 +146,9 @@ export default function WhatsappSettings() {
 
   useEffect(() => {
     if (fetcher.data?.ok) {
-      shopify.toast.show("WhatsApp-Einstellungen gespeichert");
+      shopify.toast.show(t(locale, "toastSaved"));
     }
-  }, [fetcher.data?.ok, shopify]);
+  }, [fetcher.data?.ok, locale, shopify]);
 
   const errorMessage =
     fetcher.data && "error" in fetcher.data
@@ -148,27 +158,24 @@ export default function WhatsappSettings() {
   const previewLabel = draftButtonLabel || "Bei WhatsApp schreiben";
 
   return (
-    <s-page heading="WhatsApp Button">
-      <s-section heading="Einstellungen">
-        <s-paragraph>
-          Lege fest, welche Nachricht vorbefüllt wird und welche WhatsApp-Nummer
-          kontaktiert wird.
-        </s-paragraph>
+    <s-page heading={t(locale, "pageTitle")}>
+      <s-section heading={t(locale, "sectionTitle")}>
+        <s-paragraph>{t(locale, "sectionDescription")}</s-paragraph>
         <fetcher.Form method="post">
           <div style={{ display: "grid", gap: "16px", maxWidth: "760px" }}>
             <label>
               <div style={{ fontWeight: 600, marginBottom: "4px" }}>
-                WhatsApp-Nummer
+                {t(locale, "phoneLabel")}
               </div>
               <input
                 name="phone"
                 value={draftPhone}
                 onChange={(event) => setDraftPhone(event.target.value)}
-                placeholder="z.B. 491711234567"
+                placeholder="z.B. +49 171 1234567"
                 style={{ width: "100%", padding: "8px" }}
               />
               <div style={{ fontSize: "12px", color: "#6d7175" }}>
-                Bitte im internationalen Format ohne Pluszeichen eingeben.
+                {t(locale, "phoneHelper")}
               </div>
             </label>
             <div
@@ -179,8 +186,36 @@ export default function WhatsappSettings() {
               }}
             >
               <label style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, marginBottom: "4px" }}>
-                  Nachricht im Chat
+                <div
+                  style={{
+                    fontWeight: 600,
+                    marginBottom: "4px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                  }}
+                >
+                  <span>{t(locale, "messageLabel")}</span>
+                  <button
+                    type="button"
+                    title={t(locale, "messageInfo")}
+                    onClick={() => window.alert(t(locale, "messageInfo"))}
+                    style={{
+                      width: "18px",
+                      height: "18px",
+                      borderRadius: "50%",
+                      border: "1px solid #c9cccf",
+                      background: "#f6f6f7",
+                      color: "#202223",
+                      fontSize: "12px",
+                      lineHeight: "1",
+                      cursor: "pointer",
+                      padding: 0,
+                    }}
+                    aria-label={t(locale, "messageInfo")}
+                  >
+                    i
+                  </button>
                 </div>
                 <textarea
                   name="message"
@@ -247,7 +282,7 @@ export default function WhatsappSettings() {
                         >
                           W
                         </div>
-                        <span>{draftPhone || "491711234567"}</span>
+                        <span>{draftPhone || "+491711234567"}</span>
                       </div>
                       <div style={{ flex: 1 }} />
                       <div
@@ -285,7 +320,7 @@ export default function WhatsappSettings() {
                             fontSize: "14px",
                             lineHeight: "1",
                           }}
-                          aria-label="Senden"
+                          aria-label={t(locale, "sendAria")}
                         >
                           ➤
                         </div>
@@ -295,6 +330,9 @@ export default function WhatsappSettings() {
                 </div>
               </div>
             </div>
+            <div style={{ fontWeight: 600, marginTop: "8px" }}>
+              {t(locale, "appearanceTitle")}
+            </div>
             <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <input
                 type="checkbox"
@@ -302,11 +340,11 @@ export default function WhatsappSettings() {
                 checked={draftShowClose}
                 onChange={(event) => setDraftShowClose(event.target.checked)}
               />
-              <span>Schließen‑Icon anzeigen</span>
+              <span>{t(locale, "showCloseLabel")}</span>
             </label>
             <div>
               <div style={{ fontWeight: 600, marginBottom: "4px" }}>
-                Button‑Größe
+                {t(locale, "buttonSizeLabel")}
               </div>
               <div style={{ display: "flex", gap: "16px" }}>
                 <label style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -317,7 +355,7 @@ export default function WhatsappSettings() {
                     checked={draftButtonSize === "S"}
                     onChange={() => setDraftButtonSize("S")}
                   />
-                  <span>S (nur Icon)</span>
+                  <span>{t(locale, "buttonSizeS")}</span>
                 </label>
                 <label style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                   <input
@@ -327,26 +365,26 @@ export default function WhatsappSettings() {
                     checked={draftButtonSize === "M"}
                     onChange={() => setDraftButtonSize("M")}
                   />
-                  <span>M (Icon + Text)</span>
+                  <span>{t(locale, "buttonSizeM")}</span>
                 </label>
               </div>
             </div>
             <label style={{ opacity: isMedium ? 1 : 0.6 }}>
               <div style={{ fontWeight: 600, marginBottom: "4px" }}>
-                Button‑Text
+                {t(locale, "buttonTextLabel")}
               </div>
               <input
                 name="buttonLabel"
                 value={draftButtonLabel}
                 onChange={(event) => setDraftButtonLabel(event.target.value)}
-                placeholder="z.B. Bei WhatsApp schreiben"
+                placeholder={t(locale, "buttonTextPlaceholder")}
                 disabled={!isMedium}
                 style={{ width: "100%", padding: "8px" }}
               />
             </label>
             <label>
               <div style={{ fontWeight: 600, marginBottom: "4px" }}>
-                Anzeigen nach (Sek.)
+                {t(locale, "delayLabel")}
               </div>
               <input
                 type="number"
@@ -361,7 +399,7 @@ export default function WhatsappSettings() {
             </label>
             <div style={{ maxWidth: "320px" }}>
               <div style={{ fontWeight: 600, marginBottom: "8px" }}>
-                Vorschau Button
+                {t(locale, "previewButtonLabel")}
               </div>
               <div
                 style={{
@@ -397,7 +435,7 @@ export default function WhatsappSettings() {
                       fontSize: "14px",
                       fontWeight: 600,
                     }}
-                    aria-label="WhatsApp"
+                    aria-label={t(locale, "whatsappAria")}
                   >
                     <svg
                       viewBox="0 0 32 32"
@@ -440,7 +478,7 @@ export default function WhatsappSettings() {
             </div>
             <div>
               <s-button type="submit" variant="primary">
-                Speichern
+                {t(locale, "saveButton")}
               </s-button>
             </div>
           </div>
