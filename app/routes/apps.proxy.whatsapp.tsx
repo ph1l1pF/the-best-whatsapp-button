@@ -61,29 +61,25 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     }
   } catch (e) {}
 
+  var isMedium = ${JSON.stringify(buttonSize)} === "M";
   var container = document.createElement("div");
   container.id = "the-best-whatsapp-button-whatsapp-button";
   container.style.position = "fixed";
   var closeOffset = ${JSON.stringify(showClose)} ? 10 : 0;
-  var sizeOffset = isMedium ? 400 : 0;
+  var sizeOffset = isMedium ? 24 : 0;
   container.style.right = (16 + closeOffset + sizeOffset) + "px";
   container.style.bottom = "16px";
   container.style.zIndex = "9999";
-  container.style.width = isMedium ? "222px" : "52px";
-  container.style.height = "52px";
+  container.style.width = isMedium ? "auto" : "52px";
+  container.style.height = isMedium ? "auto" : "52px";
   container.style.overflow = "visible";
   container.style.display = "flex";
   container.style.alignItems = "center";
-  if (isMedium) {
-    container.style.width = "auto";
-    container.style.height = "auto";
-  }
   container.style.display = "none";
 
   var button = document.createElement("button");
   button.type = "button";
   button.textContent = "";
-  var isMedium = ${JSON.stringify(buttonSize)} === "M";
   button.style.width = isMedium ? "auto" : "52px";
   button.style.height = "52px";
   button.style.display = "flex";

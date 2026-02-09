@@ -1,27 +1,21 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "4756ff6ddd073d1f90c7eed950268d3c"
-name = "the-best-whatsapp-button"
+client_id = "4ea69d39cfdea25c9717277e30e00ff8"
+name = "the-best-whatsapp-button-dev"
 application_url = "https://example.com"
 embedded = true
 
-[build]
-automatically_update_urls_on_dev = true
-include_config_on_deploy = true
-
 [webhooks]
-api_version = "2026-04"
+api_version = "2026-01"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "write_products"
+scopes = ""
 optional_scopes = [ ]
 use_legacy_install_flow = false
 
-[app_proxy]
-prefix = "apps"
-subpath = "proxy"
-url = "https://example.com/apps/proxy"
-
 [auth]
 redirect_urls = [ ]
+
+[build]
+automatically_update_urls_on_dev = true
