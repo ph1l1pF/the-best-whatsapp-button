@@ -2,15 +2,22 @@
 
 client_id = "4756ff6ddd073d1f90c7eed950268d3c"
 name = "the-best-whatsapp-button"
-application_url = "https://example.com"
+application_url = "https://the-best-whatsapp-button.onrender.com"
 embedded = true
-
-[build]
-automatically_update_urls_on_dev = true
-include_config_on_deploy = true
 
 [webhooks]
 api_version = "2026-04"
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+  uri = "https://the-best-whatsapp-button.onrender.com/webhooks"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
@@ -18,10 +25,17 @@ scopes = "write_products"
 optional_scopes = [ ]
 use_legacy_install_flow = false
 
+[auth]
+redirect_urls = [
+  "https://the-best-whatsapp-button.onrender.com/auth/callback",
+  "https://the-best-whatsapp-button.onrender.com/auth/shopify/callback",
+  "https://the-best-whatsapp-button.onrender.com/api/auth"
+]
+
+[build]
+automatically_update_urls_on_dev = true
+
 [app_proxy]
 prefix = "apps"
 subpath = "proxy"
-url = "https://example.com/apps/proxy"
-
-[auth]
-redirect_urls = [ ]
+url = "https://the-best-whatsapp-button.onrender.com/apps/proxy"
