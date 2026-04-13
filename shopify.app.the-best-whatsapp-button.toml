@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "4756ff6ddd073d1f90c7eed950268d3c"
-name = "the-best-whatsapp-button"
+name = "Best Chat Button"
 application_url = "https://the-best-whatsapp-button.onrender.com"
 embedded = true
 

@@ -54,16 +54,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   if (!phone) return;
   var cleanedPhone = phone.replace(/[^0-9]/g, "");
   if (!cleanedPhone) return;
-  if (document.getElementById("the-best-whatsapp-button-whatsapp-button")) return;
+  if (document.getElementById("best-chat-button-widget")) return;
   try {
-    if (window.localStorage && localStorage.getItem("the-best-whatsapp-button-whatsapp-closed") === "1") {
+    if (window.localStorage && localStorage.getItem("best-chat-button-closed") === "1") {
       return;
     }
   } catch (e) {}
 
   var isMedium = ${JSON.stringify(buttonSize)} === "M";
   var container = document.createElement("div");
-  container.id = "the-best-whatsapp-button-whatsapp-button";
+  container.id = "best-chat-button-widget";
   container.style.position = "fixed";
   var closeOffset = ${JSON.stringify(showClose)} ? 10 : 0;
   var sizeOffset = isMedium ? 24 : 0;
@@ -131,7 +131,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       event.stopPropagation();
       try {
         if (window.localStorage) {
-          localStorage.setItem("the-best-whatsapp-button-whatsapp-closed", "1");
+          localStorage.setItem("best-chat-button-closed", "1");
         }
       } catch (e) {}
       if (container.parentNode) container.parentNode.removeChild(container);
