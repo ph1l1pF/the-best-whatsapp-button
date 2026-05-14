@@ -22,6 +22,7 @@ export default function App() {
     <AppProvider embedded apiKey={apiKey}>
       <s-app-nav>
         <s-link href="/app/whatsapp">{t(navLocale, "navWhatsapp")}</s-link>
+        <s-link href="/app/appearance">{t(navLocale, "navAppearance")}</s-link>
       </s-app-nav>
       <Outlet />
     </AppProvider>
