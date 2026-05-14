@@ -1,12 +1,17 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
-import { getDefaultButtonLabel, getDefaultMessage, getLocaleFromRequest } from "../i18n";
+import {
+  getDefaultButtonLabel,
+  getDefaultMessage,
+  getLocaleFromRequest,
+} from "../i18n";
 
 type WhatsappSettings = {
   shop: string;
   phone: string | null;
   message: string | null;
+  includeProductLink: boolean;
   showClose: boolean;
   buttonSize: string;
   buttonLabel: string | null;
@@ -42,6 +47,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   });
   const phone = settings?.phone ?? "";
   const message = settings?.message ?? getDefaultMessage(locale);
+  const includeProductLink = settings?.includeProductLink ?? false;
   const showClose = settings?.showClose ?? true;
   const buttonSize = settings?.buttonSize === "M" ? "M" : "S";
   const buttonLabel = settings?.buttonLabel ?? getDefaultButtonLabel(locale);
@@ -51,6 +57,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 (function () {
   var phone = ${JSON.stringify(phone)};
   var message = ${JSON.stringify(message)};
+  var includeProductLink = ${JSON.stringify(includeProductLink)};
   if (!phone) return;
   var cleanedPhone = phone.replace(/[^0-9]/g, "");
   if (!cleanedPhone) return;
@@ -60,6 +67,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       return;
     }
   } catch (e) {}
+
+  function getProductUrl() {
+    if (!includeProductLink) return "";
+    var path = window.location.pathname;
+    if (!/\\/products\\/[^/]+/.test(path)) return "";
+    return window.location.origin + path;
+  }
 
   var isMedium = ${JSON.stringify(buttonSize)} === "M";
   var container = document.createElement("div");
@@ -101,8 +115,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   var close = document.createElement("button");
   if (${JSON.stringify(showClose)}) {
     close.type = "button";
-    close.textContent = "×";
-    close.setAttribute("aria-label", "The Best Chat Button schließen");
+    close.textContent = "\\u00d7";
+    close.setAttribute("aria-label", "Close");
     close.style.position = "absolute";
     close.style.top = "-10px";
     close.style.right = "-10px";
@@ -122,7 +136,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 
   button.addEventListener("click", function () {
-    var url = "https://wa.me/" + cleanedPhone + "?text=" + encodeURIComponent(message || "");
+    var productUrl = getProductUrl();
+    var fullMessage = message || "";
+    if (productUrl) {
+      fullMessage = fullMessage + "\\n\\n" + productUrl;
+    }
+    var url = "https://wa.me/" + cleanedPhone + "?text=" + encodeURIComponent(fullMessage);
     window.open(url, "_blank", "noopener");
   });
 

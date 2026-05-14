@@ -23,6 +23,7 @@ type WhatsappSettings = {
   shop: string;
   phone: string | null;
   message: string | null;
+  includeProductLink: boolean;
   showClose: boolean;
   buttonSize: string;
   buttonLabel: string | null;

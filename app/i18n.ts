@@ -27,7 +27,12 @@ type TranslationKey =
   | "navAppearance"
   | "messageInfo"
   | "appearancePageTitle"
-  | "appearanceSectionDescription";
+  | "appearanceSectionDescription"
+  | "productLinkLabel"
+  | "productLinkDescription"
+  | "productLinkYes"
+  | "productLinkNo"
+  | "productLinkPreviewUrl";
 
 const translations: Record<Locale, Record<TranslationKey, string>> = {
   de: {
@@ -62,6 +67,12 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     appearancePageTitle: "Erscheinungsbild",
     appearanceSectionDescription:
       "Passe das Aussehen und Verhalten des Chat-Buttons auf deiner Seite an.",
+    productLinkLabel: "Produktlink mitsenden",
+    productLinkDescription:
+      "Wenn aktiviert, wird der Link zum aktuell angesehenen Produkt automatisch an die Nachricht angeh\u00e4ngt. Nur auf Produktseiten.",
+    productLinkYes: "Ja, Produktlink anh\u00e4ngen",
+    productLinkNo: "Nein, ohne Produktlink",
+    productLinkPreviewUrl: "https://dein-shop.de/products/beispiel-produkt",
   },
   en: {
     pageTitle: "Best Chat Button",
@@ -94,6 +105,12 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     appearancePageTitle: "Appearance",
     appearanceSectionDescription:
       "Customize the look and behavior of the chat button on your storefront.",
+    productLinkLabel: "Include product link",
+    productLinkDescription:
+      "When enabled, the link to the currently viewed product is automatically appended to the message. Only on product pages.",
+    productLinkYes: "Yes, include product link",
+    productLinkNo: "No, without product link",
+    productLinkPreviewUrl: "https://your-shop.com/products/example-product",
   },
   es: {
     pageTitle: "Best Chat Button",
@@ -126,6 +143,12 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     appearancePageTitle: "Apariencia",
     appearanceSectionDescription:
       "Personaliza la apariencia y el comportamiento del bot\u00f3n de chat en tu tienda.",
+    productLinkLabel: "Incluir enlace del producto",
+    productLinkDescription:
+      "Si est\u00e1 activado, el enlace al producto que se est\u00e1 viendo se a\u00f1ade autom\u00e1ticamente al mensaje. Solo en p\u00e1ginas de producto.",
+    productLinkYes: "S\u00ed, incluir enlace del producto",
+    productLinkNo: "No, sin enlace del producto",
+    productLinkPreviewUrl: "https://tu-tienda.com/products/producto-ejemplo",
   },
   fr: {
     pageTitle: "Best Chat Button",
@@ -158,6 +181,12 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     appearancePageTitle: "Apparence",
     appearanceSectionDescription:
       "Personnalisez l'apparence et le comportement du bouton de chat sur votre boutique.",
+    productLinkLabel: "Inclure le lien du produit",
+    productLinkDescription:
+      "Si activ\u00e9, le lien vers le produit actuellement consult\u00e9 est automatiquement ajout\u00e9 au message. Uniquement sur les pages produit.",
+    productLinkYes: "Oui, inclure le lien du produit",
+    productLinkNo: "Non, sans lien du produit",
+    productLinkPreviewUrl: "https://votre-boutique.com/products/produit-exemple",
   },
 };
 

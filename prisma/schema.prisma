@@ -34,13 +34,14 @@ model Session {
 }
 
 model WhatsappSettings {
-  shop      String   @id
-  phone     String?
-  message   String?
-  showClose Boolean  @default(true)
-  buttonSize String  @default("S")
-  buttonLabel String?
-  showDelaySeconds Int @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  shop               String   @id
+  phone              String?
+  message            String?
+  includeProductLink Boolean  @default(false)
+  showClose          Boolean  @default(true)
+  buttonSize         String   @default("S")
+  buttonLabel        String?
+  showDelaySeconds   Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }

@@ -15,12 +15,14 @@ type LoaderData = {
   locale: Locale;
   phone: string;
   message: string;
+  includeProductLink: boolean;
 };
 
 type WhatsappSettings = {
   shop: string;
   phone: string | null;
   message: string | null;
+  includeProductLink: boolean;
   showClose: boolean;
   buttonSize: string;
   buttonLabel: string | null;
@@ -35,8 +37,13 @@ type WhatsappSettingsDelegate = {
   }) => Promise<WhatsappSettings | null>;
   upsert: (args: {
     where: { shop: string };
-    update: { phone?: string; message?: string };
-    create: { shop: string; phone?: string; message?: string };
+    update: { phone?: string; message?: string; includeProductLink?: boolean };
+    create: {
+      shop: string;
+      phone?: string;
+      message?: string;
+      includeProductLink?: boolean;
+    };
   }) => Promise<WhatsappSettings>;
 };
 
@@ -56,6 +63,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     locale,
     phone: settings?.phone ?? "",
     message: settings?.message ?? getDefaultMessage(locale),
+    includeProductLink: settings?.includeProductLink ?? false,
   } satisfies LoaderData;
 };
 
@@ -66,22 +74,26 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const rawPhone = (formData.get("phone")?.toString() ?? "").trim();
   const phone = rawPhone.replace(/[^0-9]/g, "");
   const message = (formData.get("message")?.toString() ?? "").trim();
+  const includeProductLink = formData.get("includeProductLink") === "yes";
 
   await prismaClient.whatsappSettings.upsert({
     where: { shop: session.shop },
-    update: { phone, message },
-    create: { shop: session.shop, phone, message },
+    update: { phone, message, includeProductLink },
+    create: { shop: session.shop, phone, message, includeProductLink },
   });
 
   return { ok: true };
 };
 
 export default function WhatsappSettings() {
-  const { locale, phone, message } = useLoaderData<LoaderData>();
+  const { locale, phone, message, includeProductLink } =
+    useLoaderData<LoaderData>();
   const fetcher = useFetcher<typeof action>();
   const shopify = useAppBridge();
   const [draftPhone, setDraftPhone] = useState(phone);
   const [draftMessage, setDraftMessage] = useState(message);
+  const [draftIncludeProductLink, setDraftIncludeProductLink] =
+    useState(includeProductLink);
 
   useEffect(() => {
     if (fetcher.data?.ok) {
@@ -93,6 +105,10 @@ export default function WhatsappSettings() {
     fetcher.data && "error" in fetcher.data
       ? String(fetcher.data.error ?? "")
       : "";
+
+  const previewMessage = draftIncludeProductLink
+    ? `${draftMessage}\n\n${t(locale, "productLinkPreviewUrl")}`
+    : draftMessage;
 
   return (
     <s-page heading={t(locale, "pageTitle")}>
@@ -122,46 +138,92 @@ export default function WhatsappSettings() {
                 alignItems: "flex-start",
               }}
             >
-              <label style={{ flex: 1 }}>
-                <div
-                  style={{
-                    fontWeight: 600,
-                    marginBottom: "4px",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                  }}
-                >
-                  <span>{t(locale, "messageLabel")}</span>
-                  <button
-                    type="button"
-                    title={t(locale, "messageInfo")}
-                    onClick={() => window.alert(t(locale, "messageInfo"))}
+              <div style={{ flex: 1, display: "grid", gap: "16px" }}>
+                <label>
+                  <div
                     style={{
-                      width: "18px",
-                      height: "18px",
-                      borderRadius: "50%",
-                      border: "1px solid #c9cccf",
-                      background: "#f6f6f7",
-                      color: "#202223",
-                      fontSize: "12px",
-                      lineHeight: "1",
-                      cursor: "pointer",
-                      padding: 0,
+                      fontWeight: 600,
+                      marginBottom: "4px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
                     }}
-                    aria-label={t(locale, "messageInfo")}
                   >
-                    i
-                  </button>
+                    <span>{t(locale, "messageLabel")}</span>
+                    <button
+                      type="button"
+                      title={t(locale, "messageInfo")}
+                      onClick={() => window.alert(t(locale, "messageInfo"))}
+                      style={{
+                        width: "18px",
+                        height: "18px",
+                        borderRadius: "50%",
+                        border: "1px solid #c9cccf",
+                        background: "#f6f6f7",
+                        color: "#202223",
+                        fontSize: "12px",
+                        lineHeight: "1",
+                        cursor: "pointer",
+                        padding: 0,
+                      }}
+                      aria-label={t(locale, "messageInfo")}
+                    >
+                      i
+                    </button>
+                  </div>
+                  <textarea
+                    name="message"
+                    value={draftMessage}
+                    onChange={(event) => setDraftMessage(event.target.value)}
+                    rows={4}
+                    style={{ width: "100%", padding: "8px" }}
+                  />
+                </label>
+                <div>
+                  <div style={{ fontWeight: 600, marginBottom: "4px" }}>
+                    {t(locale, "productLinkLabel")}
+                  </div>
+                  <div
+                    style={{ fontSize: "12px", color: "#6d7175", marginBottom: "8px" }}
+                  >
+                    {t(locale, "productLinkDescription")}
+                  </div>
+                  <div style={{ display: "flex", gap: "16px" }}>
+                    <label
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="includeProductLink"
+                        value="yes"
+                        checked={draftIncludeProductLink}
+                        onChange={() => setDraftIncludeProductLink(true)}
+                      />
+                      <span>{t(locale, "productLinkYes")}</span>
+                    </label>
+                    <label
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="includeProductLink"
+                        value="no"
+                        checked={!draftIncludeProductLink}
+                        onChange={() => setDraftIncludeProductLink(false)}
+                      />
+                      <span>{t(locale, "productLinkNo")}</span>
+                    </label>
+                  </div>
                 </div>
-                <textarea
-                  name="message"
-                  value={draftMessage}
-                  onChange={(event) => setDraftMessage(event.target.value)}
-                  rows={4}
-                  style={{ width: "100%", padding: "8px" }}
-                />
-              </label>
+              </div>
               <div style={{ minWidth: "240px" }}>
                 <div
                   style={{
@@ -239,9 +301,10 @@ export default function WhatsappSettings() {
                             whiteSpace: "pre-wrap",
                             fontSize: "12px",
                             minHeight: "34px",
+                            wordBreak: "break-all",
                           }}
                         >
-                          {draftMessage}
+                          {previewMessage}
                         </div>
                         <div
                           style={{
