@@ -102,7 +102,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   if (${JSON.stringify(showClose)}) {
     close.type = "button";
     close.textContent = "×";
-    close.setAttribute("aria-label", "WhatsApp Button schließen");
+    close.setAttribute("aria-label", "The Best Chat Button schließen");
     close.style.position = "absolute";
     close.style.top = "-10px";
     close.style.right = "-10px";

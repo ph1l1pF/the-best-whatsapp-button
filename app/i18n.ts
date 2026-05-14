@@ -28,7 +28,7 @@ type TranslationKey =
 
 const translations: Record<Locale, Record<TranslationKey, string>> = {
   de: {
-    pageTitle: "WhatsApp Button",
+    pageTitle: "The Best Chat Button",
     sectionTitle: "Einstellungen",
     sectionDescription:
       "Lege fest, welche Nachricht vorbefüllt wird und welche WhatsApp-Nummer kontaktiert wird.",
@@ -45,19 +45,19 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     delayLabel: "Anzeigen nach (Sek.)",
     previewButtonLabel: "Vorschau Button",
     previewChatLabel: "Vorschau Nachricht im Chat",
-    appearanceTitle: "Erscheinungsbild des WhatsApp Buttons",
+    appearanceTitle: "Erscheinungsbild des Chat Buttons",
     saveButton: "Speichern",
     toastSaved: "WhatsApp-Einstellungen gespeichert",
     sendAria: "Senden",
     whatsappAria: "WhatsApp",
     navHome: "Home",
     navAdditional: "Additional page",
-    navWhatsapp: "WhatsApp Button",
+    navWhatsapp: "The Best Chat Button",
     messageInfo:
       "Dieser Text wird für den Nutzer schon vorausgefüllt, sodass dieser weniger Text selber eingeben muss",
   },
   en: {
-    pageTitle: "WhatsApp Button",
+    pageTitle: "The Best Chat Button",
     sectionTitle: "Settings",
     sectionDescription:
       "Set the prefilled message and the WhatsApp number to contact.",
@@ -73,14 +73,14 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     delayLabel: "Show after (sec)",
     previewButtonLabel: "Button preview",
     previewChatLabel: "Chat message preview",
-    appearanceTitle: "WhatsApp button appearance",
+    appearanceTitle: "Chat button appearance",
     saveButton: "Save",
     toastSaved: "WhatsApp settings saved",
     sendAria: "Send",
     whatsappAria: "WhatsApp",
     navHome: "Home",
     navAdditional: "Additional page",
-    navWhatsapp: "WhatsApp Button",
+    navWhatsapp: "The Best Chat Button",
     messageInfo:
       "This text is prefilled for the customer so they have to type less themselves",
   },
